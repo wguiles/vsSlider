@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class PlayerScript : MonoBehaviour
 {
@@ -76,10 +77,10 @@ public class PlayerScript : MonoBehaviour
         {
             if (Input.GetAxisRaw(playerAxis) / _rigidbody.velocity.x < 0)
             {
-                if (canJump && !isAttacking)
-                     PlaceWall();
-                
                 ChangeDirection();
+
+                if (canJump && !isAttacking)
+                    PlaceWall();
             }
             else if (Input.GetAxisRaw(playerAxis) / _rigidbody.velocity.x > 0 && !isAttacking)
             {
@@ -102,7 +103,7 @@ public class PlayerScript : MonoBehaviour
             isAttacking = true;
             chargeMultiplier = 2.0f;
             _renderer.color = new Color(255, 0, 0);
-            yield return new WaitForSeconds(0.35f);
+            yield return new WaitForSeconds(0.75f);
             _renderer.color = thisColor;
             chargeMultiplier = 1.0f;
             isAttacking = false;
@@ -114,7 +115,7 @@ public class PlayerScript : MonoBehaviour
     {
         if (actionsLeft < 3)
         {
-            yield return new WaitForSeconds(1.0f);
+            yield return new WaitForSeconds(1.5f);
             actionsLeft++;
         }
 
@@ -131,21 +132,28 @@ public class PlayerScript : MonoBehaviour
 
             if (collision.gameObject.tag == "tempWall")
                 Destroy(collision.gameObject);
+
+            speed += 0.1f * (Mathf.Abs(speed) / speed);
+            Debug.Log(speed); 
             
         }
         else if (collision.gameObject.tag == "floor")
         {
             canJump = true;
         }
-        else if (gameObject.tag == "Player")
+        else if (collision.gameObject.tag == "Player")
         {
             PlayerScript other = collision.gameObject.GetComponent<PlayerScript>();
 
             if (isAttacking && !other.isAttacking)
-                Destroy(collision.gameObject);
+                SceneManager.LoadScene("Main");
             else
                 ChangeDirection();
+
+            speed += 0.1f * (Mathf.Abs(speed) / speed);
+            Debug.Log(speed); 
         }
+
 
     }
 
@@ -165,6 +173,11 @@ public class PlayerScript : MonoBehaviour
     public bool GetIsAttacking()
     {
         return isAttacking;
+    }
+
+    public int getActionsLeft()
+    {
+        return actionsLeft;
     }
 
     private void PlaceWall()
