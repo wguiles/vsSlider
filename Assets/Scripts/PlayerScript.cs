@@ -18,8 +18,20 @@ public class PlayerScript : MonoBehaviour
 
     public GameObject tempWall;
 
+    private ScoreManager _scoreManager;
+    private RespawnerScript _respawner;
+
+    [SerializeField]
+    private KeyCode dash;
+
+    [SerializeField]
+    private KeyCode changeDirection;
+
+    [SerializeField]
+    private KeyCode changeDirection2;
 
 
+    
     private bool canJump = true;
 
     private bool usingAction;
@@ -44,6 +56,8 @@ public class PlayerScript : MonoBehaviour
 
     void Start()
     {
+        _respawner = GameObject.Find("Respawner").GetComponent<RespawnerScript>();
+        _scoreManager = GameObject.Find("Canvas").GetComponent<ScoreManager>();
         _rigidbody = GetComponent<Rigidbody2D>();
         _renderer = GetComponent<SpriteRenderer>();
         thisColor = _renderer.color;
@@ -55,6 +69,8 @@ public class PlayerScript : MonoBehaviour
         Jumping();
         Movement();
         Actions();
+        PacmanEffect();
+
     }
 
     private void Jumping()
@@ -73,21 +89,27 @@ public class PlayerScript : MonoBehaviour
 
     private void Actions()
     {
-        if (Input.GetButtonDown(playerAxis) && hasAction())
+        if (hasAction())
         {
-            if (Input.GetAxisRaw(playerAxis) / _rigidbody.velocity.x < 0)
+            //if (Input.GetAxisRaw(playerAxis) / _rigidbody.velocity.x < 0)
+            if (Input.GetKeyDown(changeDirection) || Input.GetKeyDown(changeDirection2))
             {
                 ChangeDirection();
 
                 if (canJump && !isAttacking)
                     PlaceWall();
+
+                actionsLeft--;
+                StartCoroutine(ActionCooldown());
             }
-            else if (Input.GetAxisRaw(playerAxis) / _rigidbody.velocity.x > 0 && !isAttacking)
+            // else if (Input.GetAxisRaw(playerAxis) / _rigidbody.velocity.x > 0 && !isAttacking)
+            else if(Input.GetKeyDown(dash) && !isAttacking)
             {
                 StartCoroutine(AddBoost());
+                actionsLeft--;
+                StartCoroutine(ActionCooldown());
             }
-            actionsLeft--;
-            StartCoroutine(ActionCooldown());
+
         }
     }
 
@@ -133,7 +155,7 @@ public class PlayerScript : MonoBehaviour
             if (collision.gameObject.tag == "tempWall")
                 Destroy(collision.gameObject);
 
-            speed += 0.1f * (Mathf.Abs(speed) / speed);
+            speed += 0.01f * (Mathf.Abs(speed) / speed);
             Debug.Log(speed); 
             
         }
@@ -141,16 +163,21 @@ public class PlayerScript : MonoBehaviour
         {
             canJump = true;
         }
-        else if (collision.gameObject.tag == "Player")
+        else if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Player2")
         {
             PlayerScript other = collision.gameObject.GetComponent<PlayerScript>();
 
             if (isAttacking && !other.isAttacking)
-                SceneManager.LoadScene("Main");
+            {
+                _scoreManager.AddPlayerScore(gameObject.tag);
+                _respawner.Respawn(collision.gameObject);
+                Destroy(collision.gameObject);
+            }
+                
             else
                 ChangeDirection();
 
-            speed += 0.1f * (Mathf.Abs(speed) / speed);
+            speed += 0.01f * (Mathf.Abs(speed) / speed);
             Debug.Log(speed); 
         }
 
@@ -182,9 +209,19 @@ public class PlayerScript : MonoBehaviour
 
     private void PlaceWall()
     {
-        Instantiate(tempWall, new Vector3(transform.position.x + (-0.85f * Input.GetAxisRaw(playerAxis)), transform.position.y), Quaternion.identity);
+        Instantiate(tempWall, new Vector3(transform.position.x + (-0.85f * (-_rigidbody.velocity.x / Mathf.Abs(_rigidbody.velocity.x))), transform.position.y), Quaternion.identity);
     }
 
-
+    private void PacmanEffect()
+    {
+        if (transform.position.x > 9.37f)
+        {
+            transform.position = new Vector2(-9.37f, transform.position.y);
+        }
+        else if (transform.position.x < -9.37f)
+        {
+            transform.position = new Vector2(9.37f, transform.position.y);
+        }
+    }
 
 }

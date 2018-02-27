@@ -8,7 +8,7 @@ public class GravityLauncherScript : MonoBehaviour {
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.tag == "Player")
+        if (collision.tag == "Player" || collision.tag == "Player2")
         {
             Rigidbody2D _playerRigidBody = collision.gameObject.GetComponent<Rigidbody2D>();
             _playerRigidBody.AddForce(new Vector2(0f, launchForce), ForceMode2D.Impulse);
