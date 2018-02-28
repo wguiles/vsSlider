@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CrusherScript : MonoBehaviour {
+public class CrusherScript : MonoBehaviour 
+{
 
     [SerializeField]
     private float start;

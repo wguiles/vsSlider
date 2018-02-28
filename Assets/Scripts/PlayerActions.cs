@@ -16,6 +16,10 @@ public class PlayerActions : MonoBehaviour
     {
         currentPlayer = Player.GetComponent<PlayerScript>();
         _spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+        foreach(SpriteRenderer i in _spriteRenderers)
+        {
+            i.enabled = true;
+        }
 	}
 	
 	void Update () 

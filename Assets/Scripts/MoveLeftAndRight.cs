@@ -17,12 +17,11 @@ public class MoveLeftAndRight : MonoBehaviour {
 	
     void Start()
     {
-        transform.position = new Vector3(start, transform.position.y, transform.position.z);
     }
 	// Update is called once per frame
 	void Update () 
     {
-        transform.Translate( new Vector3(0f, speed * Time.deltaTime));
+        transform.Translate( new Vector3(speed * Time.deltaTime, 0f));
 
         if (transform.position.x > end)
         {

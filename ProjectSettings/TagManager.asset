@@ -8,6 +8,8 @@ TagManager:
   - floor
   - tempWall
   - Player2
+  - topCrusher
+  - floorCrusher
   layers:
   - Default
   - TransparentFX

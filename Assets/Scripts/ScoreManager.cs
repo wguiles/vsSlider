@@ -54,6 +54,18 @@ public class ScoreManager : MonoBehaviour {
 
     }
 
+    public void SubtractPlayerScore(string sentPlayer)
+    {
+        if (sentPlayer == "Player" && player1Score > 0)
+            player1Score--;
+        else if (sentPlayer == "Player2" && player2Score > 0)
+            player2Score--;
+
+        UpdateScore();
+        AddSceneKills();
+
+    }
+
     void SwitchScene()
     {
         if (nextScene == null)

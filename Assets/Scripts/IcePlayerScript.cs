@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class PlayerScript : MonoBehaviour
+public class IcePlayerScript : MonoBehaviour
 {
 
     private Rigidbody2D _rigidbody;
@@ -25,21 +25,19 @@ public class PlayerScript : MonoBehaviour
     private KeyCode dash;
 
     [SerializeField]
-    private KeyCode changeDirection;
+    private KeyCode left;
 
     [SerializeField]
-    private KeyCode changeDirection2;
+    private KeyCode right;
 
 
-
+    
     private bool canJump = true;
 
     private bool usingAction;
 
     private int score;
 
-
-    [SerializeField]
     private Color thisColor;
 
     [SerializeField]
@@ -56,33 +54,22 @@ public class PlayerScript : MonoBehaviour
 
     private bool isAttacking;
 
-    private bool isInvincible;
-
-
-
-
+    public float pushForce;
 
     void Start()
     {
-        chargeMultiplier = 1.0f;
-        isAttacking = false;
-        actionsLeft = 3;
         _respawner = GameObject.Find("Respawner").GetComponent<RespawnerScript>();
         _scoreManager = GameObject.Find("Canvas").GetComponent<ScoreManager>();
         _rigidbody = GetComponent<Rigidbody2D>();
         _renderer = GetComponent<SpriteRenderer>();
-        _renderer.color = thisColor;
-        StartCoroutine(Invincible());
-        StartCoroutine(ActionCooldown());
+        thisColor = _renderer.color;
     }
-
-
 
     // Update is called once per frame
     void Update()
     {
         Jumping();
-        Movement();
+       // Movement();
         Actions();
         PacmanEffect();
 
@@ -104,44 +91,31 @@ public class PlayerScript : MonoBehaviour
 
     private void Actions()
     {
-        // First control scheme
-
         if (hasAction())
-        {
-            if (Input.GetKeyDown(changeDirection) || Input.GetKeyDown(changeDirection2))
-            {
-                ChangeDirection();
+        {   // {{
+            //if (Input.GetAxisRaw(playerAxis) / _rigidbody.velocity.x < 0)
+            //if ((Input.GetAxisRaw(playerAxis) != Mathf.Sign(_rigidbody.velocity.x)))
+            //{
+            //    ChangeDirection();
 
-                if (canJump && !isAttacking)
-                    PlaceWall();
+            //    if (canJump)
+            //        PlaceWall();
 
-                actionsLeft--;
-                StartCoroutine(ActionCooldown());
-            }
-            else if (Input.GetKeyDown(dash) && !isAttacking)
+            //    actionsLeft--;
+            //    StartCoroutine(ActionCooldown());
+
+            if (Input.GetAxis(playerAxis) != 0f && !isAttacking)
             {
                 StartCoroutine(AddBoost());
                 actionsLeft--;
                 StartCoroutine(ActionCooldown());
             }
+            //}
+
         }
 
-        //Second control scheme
 
-        //if (hasAction())
-        //{
-        //    if (Input.GetKeyDown(changeDirection) || Input.GetKeyDown(changeDirection2))
-        //    {
-        //        if (Input.GetAxisRaw(playerAxis) != Mathf.Sign(_rigidbody.velocity.x))
-        //        {
-        //            ChangeDirection();
-        //            PlaceWall();
-        //        }
-        //        StartCoroutine(AddBoost());
-        //        actionsLeft--;
-        //        StartCoroutine(ActionCooldown());
-        //    }
-        //}
+        
     }
 
     private void ChangeDirection()
@@ -151,14 +125,15 @@ public class PlayerScript : MonoBehaviour
 
     private IEnumerator AddBoost()
     {
-        if (chargeMultiplier == 1.0f)
+        if (!isAttacking)
         {
             isAttacking = true;
-            chargeMultiplier = 2.0f;
+            // chargeMultiplier = 2.0f;
+            _rigidbody.AddForce(new Vector2(pushForce * Time.deltaTime, _rigidbody.velocity.y), ForceMode2D.Force);
             _renderer.color = new Color(255, 0, 0);
             yield return new WaitForSeconds(0.75f);
             _renderer.color = thisColor;
-            chargeMultiplier = 1.0f;
+            //chargeMultiplier = 1.0f;
             isAttacking = false;
         }
 
@@ -186,51 +161,30 @@ public class PlayerScript : MonoBehaviour
             if (collision.gameObject.tag == "tempWall")
                 Destroy(collision.gameObject);
 
-            Debug.Log(speed);
-
+            speed += 0.01f * (Mathf.Abs(speed) / speed);
+            Debug.Log(speed); 
+            
         }
-        else if (collision.gameObject.tag == "floor" || collision.gameObject.tag == "floorCrusher")
+        else if (collision.gameObject.tag == "floor")
         {
             canJump = true;
         }
-        else if (collision.gameObject.tag == "topCrusher" && _rigidbody.velocity.y <= 0)
+        else if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Player2")
         {
-            _respawner.Respawn(gameObject);
-            _scoreManager.SubtractPlayerScore(gameObject.tag);
-            Destroy(gameObject); 
-        }
-
-
-        if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Player2")
-        {
-            PlayerScript other = collision.gameObject.GetComponent<PlayerScript>();
+            IcePlayerScript other = collision.gameObject.GetComponent<IcePlayerScript>();
 
             if (isAttacking && !other.isAttacking)
             {
-                if ( !isInvincible && !other.isInvincible)
-                {
-                    _scoreManager.AddPlayerScore(gameObject.tag);
-                    _respawner.Respawn(collision.gameObject);
-                    Destroy(collision.gameObject);
-                }
-                else if (isInvincible || other.isInvincible)
-                {
-                    ChangeDirection();
-                    speed += 0.01f * (Mathf.Abs(speed) / speed);
-
-                }
-
-            }
-
-            else
-            {
-                ChangeDirection();
-                speed += 0.01f * (Mathf.Abs(speed) / speed);
-
+                _scoreManager.AddPlayerScore(gameObject.tag);
+                _respawner.Respawn(collision.gameObject);
+                Destroy(collision.gameObject);
             }
                 
+            else
+                ChangeDirection();
 
-            Debug.Log(speed);
+            speed += 0.01f * (Mathf.Abs(speed) / speed);
+            Debug.Log(speed); 
         }
 
 
@@ -246,7 +200,7 @@ public class PlayerScript : MonoBehaviour
 
     private bool hasAction()
     {
-        return (!usingAction && actionsLeft > 0);
+        return(!usingAction && actionsLeft > 0);
     }
 
     public bool GetIsAttacking()
@@ -276,30 +230,4 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    private IEnumerator Invincible()
-    {
-        if (!isInvincible)
-        {
-            isInvincible = true;
-
-            _renderer.color = new Color(thisColor.r, thisColor.g, thisColor.b, 0.5f);
-
-            for (int i = 0; i < 20; i ++)
-            {
-                _renderer.enabled = false;
-                yield return new WaitForSeconds(0.1f);
-                _renderer.enabled = true;
-                yield return new WaitForSeconds(0.1f);
-            }
-
-            _renderer.color = thisColor;
-
-            isInvincible = false;
-        }
-    }
-
 }
-
-
-
-
