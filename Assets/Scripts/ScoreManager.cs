@@ -79,8 +79,8 @@ public class ScoreManager : MonoBehaviour {
 
     void UpdateScore()
     {
-        player1text.text = player1Score.ToString();
-        player2text.text = player2Score.ToString();
+        player1text.text = ("Player 1 Score: ") + player1Score.ToString();
+        player2text.text = ("Player 2 Score: ") + player2Score.ToString();
     }
 	
 }

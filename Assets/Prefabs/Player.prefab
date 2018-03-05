@@ -103,6 +103,10 @@ MonoBehaviour:
   chargeMultiplier: 1
   jumpForce: 10
   tempWall: {fileID: 1358932845630156, guid: 2ce1d9ce36e94412993f8031a4c9aa35, type: 2}
+  placeWall: 115
+  changeDirection: 0
+  changeDirection2: 0
+  thisColor: {r: 0, g: 0, b: 0, a: 0}
   actionsLeft: 3
   cooldownTime: 0
   playerAxis: Player2

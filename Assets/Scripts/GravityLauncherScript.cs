@@ -4,14 +4,26 @@ using UnityEngine;
 
 public class GravityLauncherScript : MonoBehaviour {
 
-    public float launchForce;
+
+    public float tempJumpForce;
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.tag == "Player" || collision.tag == "Player2")
         {
-            Rigidbody2D _playerRigidBody = collision.gameObject.GetComponent<Rigidbody2D>();
-            _playerRigidBody.AddForce(new Vector2(0f, launchForce), ForceMode2D.Impulse);
+            PlayerScript player = collision.gameObject.GetComponent<PlayerScript>();
+             tempJumpForce = player.jumpForce;
+            player.jumpForce *= 1.5f;
+           
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.tag == "Player" || collision.tag == "Player2")
+        {
+            PlayerScript player = collision.gameObject.GetComponent<PlayerScript>();
+            player.jumpForce = tempJumpForce;
         }
     }
 }
