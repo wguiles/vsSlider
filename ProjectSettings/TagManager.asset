@@ -7,6 +7,10 @@ TagManager:
   - wall
   - floor
   - tempWall
+  - Player2
+  - topCrusher
+  - floorCrusher
+  - ceiling
   layers:
   - Default
   - TransparentFX
