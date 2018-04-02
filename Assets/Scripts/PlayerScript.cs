@@ -5,10 +5,15 @@ using UnityEngine.SceneManagement;
 
 public class PlayerScript : MonoBehaviour
 {
+    public GameObject player1Explosion;
+    public GameObject player2Explosion;
 
     public Rigidbody2D _rigidbody;
 
-    private SpriteRenderer _renderer;
+    [HideInInspector]
+    public SpriteRenderer _renderer;
+
+    private SoundManager _soundManager;
 
     public float speed;
 
@@ -30,7 +35,7 @@ public class PlayerScript : MonoBehaviour
     [SerializeField]
     private KeyCode changeDirection2;
 
-
+    public float initalJumpForce;
 
     public bool canJump = true;
 
@@ -38,9 +43,7 @@ public class PlayerScript : MonoBehaviour
 
     private int score;
 
-
-    [SerializeField]
-    private Color thisColor;
+    public Color thisColor;
 
     [SerializeField]
     private int actionsLeft;
@@ -48,21 +51,24 @@ public class PlayerScript : MonoBehaviour
     [SerializeField]
     private float cooldownTime;
 
-    [SerializeField]
-    private string playerAxis;
+
+    public string playerAxis;
 
 
     public KeyCode jumpKey;
 
-    private bool isAttacking;
+    [HideInInspector]
+    public bool isAttacking;
 
+    [HideInInspector]
     public bool isInvincible;
 
+    [HideInInspector]
     public bool stunned;
 
     //for shootout Level
 
-    public bool canShoot;
+    private bool canShoot;
     public GameObject bullet;
 
 
@@ -72,6 +78,15 @@ public class PlayerScript : MonoBehaviour
 
     public void Start()
     {
+        _soundManager = GameObject.Find("SoundManager").GetComponent<SoundManager>();
+
+        if (initalJumpForce != 0)
+            jumpForce = initalJumpForce;
+
+        if (SceneManager.GetActiveScene() == SceneManager.GetSceneByName("Shootout"))
+            canShoot = true;
+            
+
         chargeMultiplier = 1.0f;
         isAttacking = false;
         stunned = false;
@@ -95,9 +110,6 @@ public class PlayerScript : MonoBehaviour
         }
         Jumping();
         Movement();
-
-
-       // PacmanEffect();
     }
 
    
@@ -105,6 +117,7 @@ public class PlayerScript : MonoBehaviour
     {
         if (Input.GetKeyDown(jumpKey) && canJump)
         {
+            _soundManager.PlaySound("jump");
             _rigidbody.AddForce(new Vector2(_rigidbody.velocity.x, jumpForce), ForceMode2D.Impulse);
             canJump = false;
         }
@@ -115,7 +128,7 @@ public class PlayerScript : MonoBehaviour
         _rigidbody.velocity = new Vector2(speed * chargeMultiplier, _rigidbody.velocity.y);
     }
 
-    private void Actions()
+    public virtual void Actions()
     {
 
         if (actionsLeft > 0)
@@ -124,13 +137,16 @@ public class PlayerScript : MonoBehaviour
             {
                 if (Input.GetAxisRaw(playerAxis) != Mathf.Sign(_rigidbody.velocity.x))
                 {
+                    StartCoroutine(ActionCooldown());
                     ChangeDirection();
-                }
 
+                }
+                _soundManager.PlaySound("attack");
                 StartCoroutine(AddBoost(2.0f, 0.75f));
                 actionsLeft--;
                 StartCoroutine(ActionCooldown());
             }
+
             else if (Input.GetKeyDown(placeWall))
             {
                 ChangeDirection();
@@ -141,6 +157,7 @@ public class PlayerScript : MonoBehaviour
                 actionsLeft--;
                 StartCoroutine(ActionCooldown());
             }
+
         }
 
 
@@ -149,11 +166,12 @@ public class PlayerScript : MonoBehaviour
 
     private void ChangeDirection()
     {
+        _soundManager.PlaySound("changeDirection");
         speed *= -1f;
     }
 
 
-    public IEnumerator AddBoost(float multipier, float seconds)
+    public virtual IEnumerator AddBoost(float multipier, float seconds)
     {
         if (!isAttacking && !stunned)
         {
@@ -163,9 +181,7 @@ public class PlayerScript : MonoBehaviour
             yield return new WaitForSeconds(seconds);
             _renderer.color = thisColor;
             chargeMultiplier = 1.0f;
-           // Debug.Log("Charge multiplier for " + gameObject.tag ": " + chargeMultiplier); 
             isAttacking = false;
-
         }
 
     }
@@ -204,27 +220,24 @@ public class PlayerScript : MonoBehaviour
         }
         else if (collision.gameObject.tag == "topCrusher" && _rigidbody.velocity.y <= 0)
         {
-            _respawner.Respawn(gameObject);
+            _respawner.Respawn();
             _scoreManager.SubtractPlayerScore(gameObject.tag);
             Destroy(gameObject); 
         }
+
         if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Player2")
         {
             PlayerScript other = collision.gameObject.GetComponent<PlayerScript>();
 
-            if (isAttacking && !other.isAttacking)
+            if (!isAttacking && other.isAttacking)
             {
                 if ( !isInvincible && !other.isInvincible)
                 {
-                    _scoreManager.AddPlayerScore(gameObject.tag);
-                    _respawner.Respawn(collision.gameObject);
-                    Destroy(collision.gameObject);
+                    DestroyAndRespawn();
                 }
                 else if (isInvincible || other.isInvincible)
                 {
                     ChangeDirection();
-                    speed += 0.05f * (Mathf.Abs(speed) / speed);
-
                 }
 
             }
@@ -265,13 +278,12 @@ public class PlayerScript : MonoBehaviour
 
     public virtual void PlaceWall()
     {
-        GameObject wallPlaced = Instantiate(tempWall, new Vector3(transform.position.x + (-0.85f * (-_rigidbody.velocity.x / Mathf.Abs(_rigidbody.velocity.x))), transform.position.y), Quaternion.identity);
+        GameObject wallPlaced = Instantiate(tempWall, new Vector3(transform.position.x + (0.85f * (Mathf.Sign(_rigidbody.velocity.x))), transform.position.y), Quaternion.identity);
         if (canShoot)
         {
             Instantiate(bullet, wallPlaced.transform.position, Quaternion.identity);
         }
     }
-
     private void PacmanEffect()
     {
         if (transform.position.x > 9.37f)
@@ -306,20 +318,44 @@ public class PlayerScript : MonoBehaviour
         }
     }
 
-    private IEnumerator Stun()
+    public IEnumerator Stun()
     {
+        _soundManager.PlaySound("stunned");
         _renderer.color = thisColor;
         isAttacking = false;
-
-       // chargeMultiplier = 0f;
         stunned = true;
         transform.Rotate(new Vector3(0f, 0f, 90.0f));
         yield return new WaitForSeconds(2.0f);
         stunned = false;
-        //chargeMultiplier = 1.0f;
         transform.rotation = Quaternion.Euler(0f, 0f, 0f);
     }
 
+    public void DestroyAndRespawn()
+    {
+        
+        _respawner.startRespawn();
+        Destroy(gameObject);
+        SpawnExplosion();
+        _scoreManager.AddPlayerScore(OtherPlayer(gameObject.tag));
+    }
+
+	private void SpawnExplosion()
+	{
+        _soundManager.PlaySound("explosion");
+        if (gameObject.tag == "Player")
+            Instantiate(player1Explosion, gameObject.transform.position, Quaternion.identity);
+        else if (gameObject.tag == "Player2")
+            Instantiate(player2Explosion, gameObject.transform.position, Quaternion.identity);
+            
+	}
+
+    private string OtherPlayer (string playerString)
+    {
+        if (playerString == "Player")
+            return "Player2";
+        else
+            return "Player";
+    }
 
 }
 

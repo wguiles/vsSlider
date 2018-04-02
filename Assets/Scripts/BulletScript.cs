@@ -35,10 +35,18 @@ public class BulletScript : MonoBehaviour {
     {
         if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Player2")
         {
+            PlayerScript player = collision.gameObject.GetComponent<PlayerScript>();
             _scoreManager.SubtractPlayerScore(collision.gameObject.tag);
-            _respawner.Respawn(collision.gameObject);
-            Destroy(collision.gameObject);
+            player.DestroyAndRespawn();
             Destroy(gameObject);
         }
+    }
+
+    private string otherPlayer(string playerString)
+    {
+        if (playerString == "Player")
+            return "Player2";
+        else
+            return "Player";
     }
 }

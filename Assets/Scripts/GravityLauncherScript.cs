@@ -13,6 +13,7 @@ public class GravityLauncherScript : MonoBehaviour {
         {
             PlayerScript player = collision.gameObject.GetComponent<PlayerScript>();
              tempJumpForce = player.jumpForce;
+            player.initalJumpForce = tempJumpForce;
             player.jumpForce *= 1.5f;
            
         }

@@ -113,8 +113,8 @@ Transform:
   m_PrefabParentObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1896681835191780}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 7.68, y: -4.76, z: 0}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 16.310001, y: 0.109999985, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 4552661973133774}
@@ -195,7 +195,7 @@ BoxCollider2D:
   m_IsTrigger: 0
   m_UsedByEffector: 0
   m_UsedByComposite: 0
-  m_Offset: {x: 0, y: -0.17660719}
+  m_Offset: {x: 0, y: 0}
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
@@ -206,7 +206,7 @@ BoxCollider2D:
     adaptiveTiling: 0
   m_AutoTiling: 0
   serializedVersion: 2
-  m_Size: {x: 0.95, y: 0.59678566}
+  m_Size: {x: 0.95, y: 0.95}
   m_EdgeRadius: 0
 --- !u!114 &114213695338703072
 MonoBehaviour:
@@ -231,18 +231,30 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ae364186ba72445f9b70b4da9b07589e, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  speed: 8
+  player1Explosion: {fileID: 1794554929369990, guid: 644e0665c0eab444a99b9f634e354b6f,
+    type: 2}
+  player2Explosion: {fileID: 1179773521803282, guid: 8ca0f2a970891402f8a7e8a21ea0c99e,
+    type: 2}
+  _rigidbody: {fileID: 0}
+  _renderer: {fileID: 0}
+  speed: 5
   chargeMultiplier: 1
   jumpForce: 10
   tempWall: {fileID: 1358932845630156, guid: 2ce1d9ce36e94412993f8031a4c9aa35, type: 2}
   placeWall: 274
   changeDirection: 275
   changeDirection2: 276
-  thisColor: {r: 0, g: 0, b: 0, a: 0}
+  initalJumpForce: 0
+  canJump: 1
+  thisColor: {r: 0.57254905, g: 0.9098039, b: 0.72156864, a: 1}
   actionsLeft: 3
-  cooldownTime: 0
+  cooldownTime: 3
   playerAxis: Player2
   jumpKey: 273
+  isAttacking: 0
+  isInvincible: 0
+  stunned: 0
+  bullet: {fileID: 1123612908226350, guid: efdca423ebd2f486b88301b9d80aa97f, type: 2}
 --- !u!212 &212010375497690788
 SpriteRenderer:
   m_ObjectHideFlags: 1

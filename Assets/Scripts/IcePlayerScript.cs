@@ -176,7 +176,7 @@ public class IcePlayerScript : MonoBehaviour
             if (isAttacking && !other.isAttacking)
             {
                 _scoreManager.AddPlayerScore(gameObject.tag);
-                _respawner.Respawn(collision.gameObject);
+                _respawner.Respawn();
                 Destroy(collision.gameObject);
             }
                 

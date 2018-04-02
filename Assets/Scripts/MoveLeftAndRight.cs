@@ -21,7 +21,7 @@ public class MoveLeftAndRight : MonoBehaviour {
 	// Update is called once per frame
 	void Update () 
     {
-        transform.Translate( new Vector3(speed * Time.deltaTime, 0f));
+        transform.Translate(new Vector3(0f, speed * Time.deltaTime));
 
         if (transform.position.x > end)
         {

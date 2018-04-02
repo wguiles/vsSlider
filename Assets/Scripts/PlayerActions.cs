@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PlayerActions : MonoBehaviour 
 {
-
-
     private SpriteRenderer[] _spriteRenderers;
 
     public GameObject Player;
@@ -16,12 +14,15 @@ public class PlayerActions : MonoBehaviour
     {
         currentPlayer = Player.GetComponent<PlayerScript>();
         _spriteRenderers = GetComponentsInChildren<SpriteRenderer>();
+
         foreach(SpriteRenderer i in _spriteRenderers)
         {
             i.enabled = true;
         }
 	}
 	
+
+
 	void Update () 
     {
         for (int i = 0; i < 3; i++)
@@ -36,4 +37,5 @@ public class PlayerActions : MonoBehaviour
             }
         }
 	}
+
 }

@@ -17,6 +17,7 @@ public class FlyingPlayers : PlayerScript
     // Update is called once per frame
     public new void Update () 
     {
+
         base.Update();
 
         if (isInvincible)
@@ -49,18 +50,10 @@ public class FlyingPlayers : PlayerScript
     {
         if(Input.GetKeyDown(jumpKey))
         {
+            _rigidbody.velocity = new Vector2(_rigidbody.velocity.x, 0f);
             _rigidbody.AddForce(new Vector2(_rigidbody.velocity.x, jumpForce), ForceMode2D.Impulse);
         }
     }
-
-    //public override void PlaceWall()
-    //{
-    //    if (Input.GetKeyDown(placeWall) && !isSpinning)
-    //    {
-    //        StartCoroutine(Spin());
-    //    }
-    //}
-
 
     IEnumerator Spin()
     {
@@ -72,20 +65,6 @@ public class FlyingPlayers : PlayerScript
     }
 
 
-    //vertical Movement
-
- //   public override void Movement()
- //   {
- //       _rigidbody.velocity = new Vector2(speed * chargeMultiplier, speedY * chargeMultiplier);
- //   }
-
-	//private void OnCollisionEnter(Collision collision)
-	//{
-	//	if (collision.gameObject.tag == "floor" || collision.gameObject.tag == "ceiling")
- //       {
- //           speedY *= -1.0f;
- //       }
-	//}
 
 
 

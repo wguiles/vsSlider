@@ -19,9 +19,8 @@ public class KillFloorScript : MonoBehaviour
 	{
 		if (collision.gameObject.tag == "Player" || collision.gameObject.tag == "Player2")
         {
-            _scoreManager.SubtractPlayerScore(collision.gameObject.tag);
-            _respawner.Respawn(collision.gameObject);
-            Destroy(collision.gameObject);
+            PlayerScript killedPlayer = collision.gameObject.GetComponent<PlayerScript>();
+            killedPlayer.DestroyAndRespawn();
         }
 	}
 }
